@@ -26,10 +26,10 @@ public class Break implements Listener {
         NamespacedKey key = bloc.getKey();
         String keyString = key.toString(); // "minecraft:diamond_ore"
 
-        if (!BlockQuota.getInstance().getMainConfig().containsInSection("block_limits", bloc.name())) {
-            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("not-whitelisted"));
-            return;
-        }
+//        if (!BlockQuota.getInstance().getMainConfig().containsInSection("block_limits", bloc.name())) {
+//            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("not-whitelisted"));
+//            return;
+//        }
 
         if (player.hasPermission("blockquota.bypass")) return;
 
@@ -46,11 +46,11 @@ public class Break implements Listener {
         } else {
             stats.put(bloc, alreadyBreak + 1);
             BlockQuota.getInstance().getSqLiteStorage().addQuota(uuid, keyString, alreadyBreak + 1);
-            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("block-break-added")
-                    .replace("%block%", bloc.name())
-                    .replace("%current%", String.valueOf(alreadyBreak + 1))
-                    .replace("%limit%", String.valueOf(limit))
-            );
+//            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("block-break-added")
+//                    .replace("%block%", bloc.name())
+//                    .replace("%current%", String.valueOf(alreadyBreak + 1))
+//                    .replace("%limit%", String.valueOf(limit))
+//            );
         }
     }
 }
