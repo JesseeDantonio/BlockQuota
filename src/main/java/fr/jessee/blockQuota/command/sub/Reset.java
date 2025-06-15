@@ -28,35 +28,35 @@ public class Reset extends AbstractSubCommand {
     public void execute(org.bukkit.command.CommandSender sender, String[] args) {
         if (sender instanceof Player player) {
             if (!player.hasPermission("blockQuota.reset")) {
-                player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("no-permission"));
+                player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("no_permission"));
                 return;
             }
             if (args.length == 0) {
                 BlockQuota.getInstance().getSqLiteStorage().resetQuota(player.getUniqueId());
             } else if (args[0].equalsIgnoreCase("all")) {
                 BlockQuota.getInstance().getSqLiteStorage().resetAllQuotas();
-                player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit-reset-all"));
+                player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset_all"));
             } else {
                 Bukkit.getOnlinePlayers().forEach(p -> {
                     if (p.getName().equals(args[0])) {
                         BlockQuota.getInstance().getSqLiteStorage().resetQuota(p.getUniqueId());
                         player.sendMessage(BlockQuota.getInstance().getLangConfig()
-                                .getString("limit-reset-another")
+                                .getString("limit_reset_another")
                                 .replace("%player%", p.getName())
                         );
                     } else {
                         player.sendMessage(BlockQuota.getInstance().getLangConfig()
-                                .getString("not-connected")
+                                .getString("not_connected")
                                 .replace("%player%", p.getName())
                         );
                     }
                 });
             }
-            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit-reset"));
+            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset"));
         } else {
             if (args[0].equalsIgnoreCase("all")) {
                 BlockQuota.getInstance().getSqLiteStorage().resetAllQuotas();
-                sender.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit-reset-all"));
+                sender.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset_all"));
                 return;
             }
 
@@ -64,12 +64,12 @@ public class Reset extends AbstractSubCommand {
                 if (p.getName().equals(args[0])) {
                     BlockQuota.getInstance().getSqLiteStorage().resetQuota(p.getUniqueId());
                     sender.sendMessage(BlockQuota.getInstance().getLangConfig()
-                            .getString("limit-reset-another")
+                            .getString("limit_reset_another")
                             .replace("%player%", p.getName())
                     );
                 } else {
                     sender.sendMessage(BlockQuota.getInstance().getLangConfig()
-                            .getString("not-connected")
+                            .getString("not_connected")
                             .replace("%player%", p.getName()));
                 }
             });

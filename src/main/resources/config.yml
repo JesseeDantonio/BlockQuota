@@ -1,6 +1,6 @@
-block_limits:
+block_break_limit:
   DIAMOND_ORE: 5
   ANCIENT_DEBRIS: 1
   EMERALD_ORE: 10
 
-reset_time: "00:00" # heure:min
+reset_quota: "00:00" # heure:min

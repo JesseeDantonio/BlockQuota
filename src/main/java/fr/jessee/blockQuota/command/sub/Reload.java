@@ -29,9 +29,9 @@ public class Reload extends AbstractSubCommand {
         BlockQuota.getInstance().getLangConfig().reload();
         BlockQuota.getInstance().getMainConfig().reload();
         if (sender instanceof Player player) {
-            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("reload-success"));
+            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("reload_success"));
         } else {
-            sender.sendMessage(BlockQuota.getInstance().getLangConfig().getString("reload-success"));
+            sender.sendMessage(BlockQuota.getInstance().getLangConfig().getString("reload_success"));
         }
     }
 }

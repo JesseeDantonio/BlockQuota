@@ -33,7 +33,8 @@ public class Help extends AbstractSubCommand {
     public void execute(CommandSender sender, String[] args) {
 
         List<List<String>> help = new ArrayList<>();
-        for (String key : BlockQuota.getInstance().getLangConfig().getConfiguration().getConfigurationSection("FACTION_HELP").getKeys(false)) {
+        for (String key : BlockQuota.getInstance().getLangConfig().getConfiguration()
+                .getConfigurationSection("FACTION_HELP").getKeys(false)) {
             help.add(BlockQuota.getInstance().getLangConfig().getStringList("FACTION_HELP." + key));
         }
 

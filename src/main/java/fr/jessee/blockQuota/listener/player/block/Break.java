@@ -33,14 +33,14 @@ public class Break implements Listener {
 
         if (player.hasPermission("blockquota.bypass")) return;
 
-        int limit = BlockQuota.getInstance().getConfig().getInt("block_limits." + bloc.name());
+        int limit = BlockQuota.getInstance().getConfig().getInt("block_break_limit." + bloc.name());
         Map<Material, Integer> stats = BlockQuota.getInstance().getStats()
                 .computeIfAbsent(uuid, k -> BlockQuota.getInstance().getSqLiteStorage().getAllQuotasAsMaterial(uuid));
         int alreadyBreak = stats.getOrDefault(bloc, 0);
 
         if (alreadyBreak >= limit) {
             e.setCancelled(true);
-            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit-reached")
+            player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reached")
                     .replace("%block%", bloc.name())
             );
         } else {
