@@ -1,5 +1,5 @@
 name: BlockQuota
-version: '1.0-SNAPSHOT'
+version: '1.0.1'
 author: "Jessee_Dantonio"
 main: fr.jessee.blockQuota.BlockQuota
 api-version: '1.21'
