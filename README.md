@@ -9,6 +9,7 @@ Un plugin Minecraft Spigot pour limiter le minage de blocs par joueur sur votre 
 - Messages configurables (`lang.yml`)
 - Commande administrateur pour réinitialiser les quotas
 - Compatible version 1.20 et 1.21
+- Dépendance : Requiert LuckPerms pour gérer les permissions.
 
 ## 📦 Installation
 
@@ -18,6 +19,8 @@ Un plugin Minecraft Spigot pour limiter le minage de blocs par joueur sur votre 
 4. Configurez les limites dans `config.yml` et les messages dans `lang.yml`
 
 ---
+
+## 
 
 ## ⚙️ Configurations
 
