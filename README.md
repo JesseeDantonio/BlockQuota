@@ -10,6 +10,7 @@ Un plugin Minecraft Spigot pour limiter le minage de blocs par joueur sur votre 
 - Commande administrateur pour réinitialiser les quotas
 - Compatible version 1.20 et 1.21
 - Dépendance : Requiert LuckPerms pour gérer les permissions.
+- Authentification Premium requise.
 
 ## 📦 Installation
 
@@ -27,32 +28,29 @@ Un plugin Minecraft Spigot pour limiter le minage de blocs par joueur sur votre 
 ### `config.yml`
 
 ```yaml
-block_limits:
+block_break_limit:
   DIAMOND_ORE: 5
   ANCIENT_DEBRIS: 1
   EMERALD_ORE: 10
-  # Ajoutez d'autres blocs ici
-  
-reset_time: "00:00" # heure:min
-  
+
+reset_quota: "00:00" # heure:min
 ```
 
 ### `lang.yml`
 
 ```yaml
-
-limit-reached: "&cTu as atteint la limite de minage pour &e%block%&c !"
-block-break-added: "&a+1 &7%block% miné. &8(&7%current%/%limit%&8)"
-limit-reset: "&bTes quotas de minage ont été réinitialisés."
-limit-reset-another: "&bLes quotas de minage ont été réinitialisés pour &e%player%&b."
-limit-reset-all: "&bLes quotas de minage ont été réinitialisés pour tous le monde."
-not-connected: "&cLe joueur &e%player% &cn'est pas connecté."
-quota-check: "&eTu as miné &a%current% &e%block% &7(sur &c%limit%&7 autorisés)."
-not-whitelisted: "&cCe bloc n'est pas concerné par les quotas."
-reload-success: "&aConfiguration rechargée !"
-no-permission: "&cTu n'as pas la permission d'utiliser cette commande."
-quota-set: "&7Le quota pour &e%player% &7sur le bloc &b%block% &7a été défini à &a%limit%&7."
-quota-view-other: "&e%player% &7a miné &a%current% &e%block% &7(sur &c%limit%&7 autorisés)."
+limit_reached: "&cTu as atteint la limite de minage pour &e%block%&c !"
+block_break_added: "&a+1 &7%block% miné. &8(&7%current%/%limit%&8)"
+limit_reset: "&bTes quotas de minage ont été réinitialisés."
+limit_reset_another: "&bLes quotas de minage ont été réinitialisés pour &e%player%&b."
+limit_reset_all: "&bLes quotas de minage ont été réinitialisés pour tous le monde."
+not_connected: "&cLe joueur &e%player% &cn'est pas connecté."
+quota_check: "&eTu as miné &a%current% &e%block% &7(sur &c%limit%&7 autorisés)."
+not_whitelisted: "&cCe bloc n'est pas concerné par les quotas."
+reload_success: "&aConfiguration rechargée !"
+no_permission: "&cTu n'as pas la permission d'utiliser cette commande."
+quota_set: "&7Le quota pour &e%player% &7sur le bloc &b%block% &7a été défini à &a%limit%&7."
+quota_view_other: "&e%player% &7a miné &a%current% &e%block% &7(sur &c%limit%&7 autorisés)."
 
 FACTION_HELP:
   1:
