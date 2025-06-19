@@ -1,11 +1,13 @@
 package fr.jessee.blockQuota.feature;
 
+import fr.jessee.blockQuota.util.dto.QuotaDTO;
 import fr.jessee.blockQuota.util.iface.BlockQuotaRepository;
 import fr.jessee.blockQuota.util.iface.Storage;
 import org.bukkit.Material;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static org.bukkit.Bukkit.getLogger;
 
@@ -27,8 +29,30 @@ public class SQLiteStorage implements BlockQuotaRepository {
         }
     }
 
-    @Override
-    public int getQuota(UUID playerId, String blockType) {
+    private List<QuotaDTO> getQuotas(UUID playerId) {
+        List<QuotaDTO> quotas = new ArrayList<>();
+        try (PreparedStatement ps = storage.getConnection().prepareStatement(
+                "SELECT * FROM storage WHERE uuid=?")) {
+            ps.setString(1, playerId.toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                try {
+                    QuotaDTO dto = hydrateBlockQuotaDTO(rs);
+                    if (dto.isValid()) {
+                        quotas.add(dto);
+                    }
+                } catch (Exception e) {
+                    getLogger().severe(e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            getLogger().severe(e.getMessage());
+        }
+        return quotas;
+    }
+
+
+    private int getQuotaCount(UUID playerId, String blockType) {
         try (PreparedStatement ps = storage.getConnection().prepareStatement(
                 "SELECT count FROM storage WHERE uuid=? AND bloc=?")) {
             ps.setString(1, playerId.toString());
@@ -43,8 +67,8 @@ public class SQLiteStorage implements BlockQuotaRepository {
         return 0;
     }
 
-    @Override
-    public void addQuota(UUID playerId, String blockType, int amount) {
+
+    private void addQuota(UUID playerId, String blockType, int amount) {
         try (PreparedStatement ps = storage.getConnection().prepareStatement(
                 "INSERT INTO storage (uuid, bloc, count) VALUES (?, ?, ?)" +
                         "ON CONFLICT(uuid, bloc) DO UPDATE SET count=excluded.count")) {
@@ -57,8 +81,8 @@ public class SQLiteStorage implements BlockQuotaRepository {
         }
     }
 
-    @Override
-    public void resetQuota(UUID playerId) {
+
+    private void resetQuota(UUID playerId) {
         try (PreparedStatement ps = storage.getConnection().prepareStatement(
                 "DELETE FROM storage WHERE uuid=?")) {
             ps.setString(1, playerId.toString());
@@ -68,18 +92,18 @@ public class SQLiteStorage implements BlockQuotaRepository {
         }
     }
 
-    @Override
-    public void resetAllQuotas() {
+
+    private void resetAllQuotas() {
         try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "TRUNCATE TABLE storage")) {
+                "DELETE FROM storage")) {
             ps.executeUpdate();
         } catch (SQLException e) {
             getLogger().severe(e.getMessage());
         }
     }
 
-    @Override
-    public Map<String, Integer> getAllQuotas(UUID playerId) {
+
+    private Map<String, Integer> getAllQuotas(UUID playerId) {
         Map<String, Integer> quotas = new HashMap<>();
         try (PreparedStatement ps = storage.getConnection().prepareStatement(
                 "SELECT bloc, count FROM storage WHERE uuid=?")) {
@@ -92,6 +116,13 @@ public class SQLiteStorage implements BlockQuotaRepository {
             getLogger().severe(e.getMessage());
         }
         return quotas;
+    }
+
+    private QuotaDTO hydrateBlockQuotaDTO(ResultSet rs) throws SQLException {
+        UUID playerId = UUID.fromString(rs.getString("uuid"));
+        String blockType = rs.getString("bloc");
+        int count = rs.getInt("count");
+        return new QuotaDTO(playerId, blockType, count);
     }
 
 
@@ -108,5 +139,36 @@ public class SQLiteStorage implements BlockQuotaRepository {
             }
         }
         return converted;
+    }
+
+    @Override
+    public CompletableFuture<Integer> getQuotaCountAsync(UUID playerId, String blockType) {
+        return CompletableFuture.supplyAsync(() -> getQuotaCount(playerId, blockType));
+    }
+
+    @Override
+    public CompletableFuture<List<QuotaDTO>> getQuotaAsync(UUID playerId) {
+        return CompletableFuture.supplyAsync(() -> getQuotas(playerId));
+    }
+
+
+    @Override
+    public CompletableFuture<Void> addQuotaAsync(UUID playerId, String blockType, int amount) {
+        return CompletableFuture.runAsync(() -> addQuota(playerId, blockType, amount));
+    }
+
+    @Override
+    public CompletableFuture<Void> resetQuotaAsync(UUID playerId) {
+        return CompletableFuture.runAsync(() -> resetQuota(playerId));
+    }
+
+    @Override
+    public CompletableFuture<Void> resetAllQuotasAsync() {
+        return CompletableFuture.runAsync(this::resetAllQuotas);
+    }
+
+    @Override
+    public CompletableFuture<Map<String, Integer>> getAllQuotasAsync(UUID playerId) {
+        return CompletableFuture.supplyAsync(() -> getAllQuotas(playerId));
     }
 }

@@ -32,14 +32,17 @@ public class Reset extends AbstractSubCommand {
                 return;
             }
             if (args.length == 0) {
-                BlockQuota.getInstance().getSqLiteStorage().resetQuota(player.getUniqueId());
+                BlockQuota.getInstance().getSqLiteStorage().resetQuotaAsync(player.getUniqueId());
+                BlockQuota.getInstance().getQuotasCache().remove(player.getUniqueId());
             } else if (args[0].equalsIgnoreCase("all")) {
-                BlockQuota.getInstance().getSqLiteStorage().resetAllQuotas();
+                BlockQuota.getInstance().getSqLiteStorage().resetAllQuotasAsync();
+                BlockQuota.getInstance().getQuotasCache().clear();
                 player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset_all"));
             } else {
                 Bukkit.getOnlinePlayers().forEach(p -> {
                     if (p.getName().equals(args[0])) {
-                        BlockQuota.getInstance().getSqLiteStorage().resetQuota(p.getUniqueId());
+                        BlockQuota.getInstance().getSqLiteStorage().resetQuotaAsync(p.getUniqueId());
+                        BlockQuota.getInstance().getQuotasCache().remove(p.getUniqueId());
                         player.sendMessage(BlockQuota.getInstance().getLangConfig()
                                 .getString("limit_reset_another")
                                 .replace("%player%", p.getName())
@@ -55,14 +58,16 @@ public class Reset extends AbstractSubCommand {
             player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset"));
         } else {
             if (args[0].equalsIgnoreCase("all")) {
-                BlockQuota.getInstance().getSqLiteStorage().resetAllQuotas();
+                BlockQuota.getInstance().getSqLiteStorage().resetAllQuotasAsync();
+                BlockQuota.getInstance().getQuotasCache().clear();
                 sender.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset_all"));
                 return;
             }
 
             Bukkit.getOnlinePlayers().forEach(p -> {
                 if (p.getName().equals(args[0])) {
-                    BlockQuota.getInstance().getSqLiteStorage().resetQuota(p.getUniqueId());
+                    BlockQuota.getInstance().getSqLiteStorage().resetQuotaAsync(p.getUniqueId());
+                    BlockQuota.getInstance().getQuotasCache().remove(p.getUniqueId());
                     sender.sendMessage(BlockQuota.getInstance().getLangConfig()
                             .getString("limit_reset_another")
                             .replace("%player%", p.getName())
