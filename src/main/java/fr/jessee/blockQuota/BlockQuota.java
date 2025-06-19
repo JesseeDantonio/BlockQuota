@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.bukkit.Bukkit.getConsoleSender;
 import static org.bukkit.Bukkit.getLogger;
@@ -32,7 +33,7 @@ public final class BlockQuota extends JavaPlugin {
     private Storage storage;
     private SQLiteStorage sqLiteStorage;
     private static BlockQuota instance;
-    private final Map<UUID, Map<Material, Integer>> stats = new HashMap<>();
+    private final Map<UUID, Map<Material, Integer>> quotasCache = new ConcurrentHashMap<>();
     private ResetTask resetTask;
 
     @Override
@@ -46,6 +47,10 @@ public final class BlockQuota extends JavaPlugin {
 
 
         if (Bukkit.getPluginManager().getPlugin("LuckPerms") == null) {
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
+
+        if (!Bukkit.getOnlineMode()) {
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
@@ -70,6 +75,7 @@ public final class BlockQuota extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        resetTask.cancel();
         try {
             if (this.getStorage().getConnection() != null && !this.getStorage().getConnection().isClosed()) {
                 this.getStorage().getConnection().close();
@@ -121,8 +127,8 @@ public final class BlockQuota extends JavaPlugin {
         return instance;
     }
 
-    public Map<UUID, Map<Material, Integer>> getStats() {
-        return stats;
+    public Map<UUID, Map<Material, Integer>> getQuotasCache() {
+        return quotasCache;
     }
 
     public ConfigFile getMainConfig() {
