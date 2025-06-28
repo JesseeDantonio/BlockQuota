@@ -5,6 +5,7 @@ import fr.jessee.blockQuota.feature.ConfigFile;
 import fr.jessee.blockQuota.feature.SQLiteFile;
 import fr.jessee.blockQuota.feature.SQLiteStorage;
 import fr.jessee.blockQuota.runnable.ResetTask;
+import fr.jessee.blockQuota.util.iface.QuotaTable;
 import fr.jessee.blockQuota.util.iface.Storage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,23 +18,22 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.bukkit.Bukkit.getConsoleSender;
-import static org.bukkit.Bukkit.getLogger;
 
 public final class BlockQuota extends JavaPlugin {
 
     private ConfigFile mainConfig;
     private ConfigFile langConfig;
-    private Storage storage;
-    private SQLiteStorage sqLiteStorage;
+    private SQLiteStorage storageBreak;
+    private SQLiteStorage storagePlace;
     private static BlockQuota instance;
-    private final Map<UUID, Map<Material, Integer>> quotasCache = new ConcurrentHashMap<>();
+    private final Map<UUID, Map<Material, Integer>> quotasBreakCache = new ConcurrentHashMap<>();
+    private final Map<UUID, Map<Material, Integer>> quotasPlaceCache = new ConcurrentHashMap<>();
     private ResetTask resetTask;
 
     @Override
@@ -60,9 +60,11 @@ public final class BlockQuota extends JavaPlugin {
 
         try {
             File dbFile = new File(getDataFolder(), "storage.db");
-            storage = new SQLiteFile(dbFile);
+            Storage storage = new SQLiteFile(dbFile);
             storage.connect();
-            sqLiteStorage = new SQLiteStorage(storage);
+
+            storageBreak = new SQLiteStorage(storage, QuotaTable.BREAK);
+            storagePlace = new SQLiteStorage(storage, QuotaTable.PLACE);
         } catch (Exception e) {
             getLogger().severe(e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -77,8 +79,10 @@ public final class BlockQuota extends JavaPlugin {
         // Plugin shutdown logic
         resetTask.cancel();
         try {
-            if (this.getStorage().getConnection() != null && !this.getStorage().getConnection().isClosed()) {
-                this.getStorage().getConnection().close();
+            if (this.getStorageBreak() != null && this.storageBreak.getStorage() != null) {
+                if (!this.storageBreak.getStorage().getConnection().isClosed()) {
+                    this.storageBreak.getStorage().getConnection().close();
+                }
             }
         } catch (SQLException e) {
             getLogger().severe(e.getMessage());
@@ -127,8 +131,12 @@ public final class BlockQuota extends JavaPlugin {
         return instance;
     }
 
-    public Map<UUID, Map<Material, Integer>> getQuotasCache() {
-        return quotasCache;
+    public Map<UUID, Map<Material, Integer>> getQuotasBreakCache() {
+        return quotasBreakCache;
+    }
+
+    public Map<UUID, Map<Material, Integer>> getQuotasPlaceCache() {
+        return quotasPlaceCache;
     }
 
     public ConfigFile getMainConfig() {
@@ -139,12 +147,12 @@ public final class BlockQuota extends JavaPlugin {
         return langConfig;
     }
 
-    public Storage getStorage() {
-        return storage;
+    public SQLiteStorage getStorageBreak() {
+        return storageBreak;
     }
 
-    public SQLiteStorage getSqLiteStorage() {
-        return sqLiteStorage;
+    public SQLiteStorage getStoragePlace() {
+        return storagePlace;
     }
 
     public ResetTask getResetTask() {

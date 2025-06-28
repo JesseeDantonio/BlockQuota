@@ -3,4 +3,7 @@ block_break_limit:
   ANCIENT_DEBRIS: 1
   EMERALD_ORE: 10
 
+block_placement_limit:
+  BEDROCK: 0
+
 reset_quota: "00:00" # heure:min

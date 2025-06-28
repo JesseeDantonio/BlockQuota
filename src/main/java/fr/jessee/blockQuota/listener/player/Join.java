@@ -19,14 +19,25 @@ public class Join implements Listener {
         Player p = e.getPlayer();
 
         Bukkit.getScheduler().runTaskAsynchronously(BlockQuota.getInstance(), () -> {
-           List<QuotaDTO> quotas = BlockQuota.getInstance().getSqLiteStorage().getQuotaAsync(p.getUniqueId()).join();
-            Map<Material, Integer> map = quotas.stream()
+           List<QuotaDTO> quotasBreak = BlockQuota.getInstance().getStorageBreak().getQuotaAsync(p.getUniqueId()).join();
+            Map<Material, Integer> mapBreak = quotasBreak.stream()
                     .filter(dto -> Material.matchMaterial(dto.getBlockType()) != null)
                     .collect(Collectors.toMap(
                             dto -> Material.matchMaterial(dto.getBlockType()),
                             QuotaDTO::getCount
                     ));
-           BlockQuota.getInstance().getQuotasCache().putIfAbsent(p.getUniqueId(), map);
+
+            BlockQuota.getInstance().getQuotasBreakCache().putIfAbsent(p.getUniqueId(), mapBreak);
+
+            List<QuotaDTO> quotasPlace = BlockQuota.getInstance().getStorageBreak().getQuotaAsync(p.getUniqueId()).join();
+            Map<Material, Integer> mapPlace = quotasPlace.stream()
+                    .filter(dto -> Material.matchMaterial(dto.getBlockType()) != null)
+                    .collect(Collectors.toMap(
+                            dto -> Material.matchMaterial(dto.getBlockType()),
+                            QuotaDTO::getCount
+                    ));
+
+            BlockQuota.getInstance().getQuotasPlaceCache().putIfAbsent(p.getUniqueId(), mapPlace);
         });
     }
 }

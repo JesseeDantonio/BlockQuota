@@ -32,17 +32,20 @@ public class Reset extends AbstractSubCommand {
                 return;
             }
             if (args.length == 0) {
-                BlockQuota.getInstance().getSqLiteStorage().resetQuotaAsync(player.getUniqueId());
-                BlockQuota.getInstance().getQuotasCache().remove(player.getUniqueId());
+                BlockQuota.getInstance().getStorageBreak().resetQuotaAsync(player.getUniqueId());
+                BlockQuota.getInstance().getStoragePlace().resetQuotaAsync(player.getUniqueId());
+                BlockQuota.getInstance().getQuotasBreakCache().remove(player.getUniqueId());
             } else if (args[0].equalsIgnoreCase("all")) {
-                BlockQuota.getInstance().getSqLiteStorage().resetAllQuotasAsync();
-                BlockQuota.getInstance().getQuotasCache().clear();
+                BlockQuota.getInstance().getStorageBreak().resetAllQuotasAsync();
+                BlockQuota.getInstance().getStoragePlace().resetAllQuotasAsync();
+                BlockQuota.getInstance().getQuotasBreakCache().clear();
                 player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset_all"));
             } else {
                 Bukkit.getOnlinePlayers().forEach(p -> {
                     if (p.getName().equals(args[0])) {
-                        BlockQuota.getInstance().getSqLiteStorage().resetQuotaAsync(p.getUniqueId());
-                        BlockQuota.getInstance().getQuotasCache().remove(p.getUniqueId());
+                        BlockQuota.getInstance().getStorageBreak().resetQuotaAsync(p.getUniqueId());
+                        BlockQuota.getInstance().getStoragePlace().resetQuotaAsync(p.getUniqueId());
+                        BlockQuota.getInstance().getQuotasBreakCache().remove(p.getUniqueId());
                         player.sendMessage(BlockQuota.getInstance().getLangConfig()
                                 .getString("limit_reset_another")
                                 .replace("%player%", p.getName())
@@ -58,16 +61,18 @@ public class Reset extends AbstractSubCommand {
             player.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset"));
         } else {
             if (args[0].equalsIgnoreCase("all")) {
-                BlockQuota.getInstance().getSqLiteStorage().resetAllQuotasAsync();
-                BlockQuota.getInstance().getQuotasCache().clear();
+                BlockQuota.getInstance().getStorageBreak().resetAllQuotasAsync();
+                BlockQuota.getInstance().getStoragePlace().resetAllQuotasAsync();
+                BlockQuota.getInstance().getQuotasBreakCache().clear();
                 sender.sendMessage(BlockQuota.getInstance().getLangConfig().getString("limit_reset_all"));
                 return;
             }
 
             Bukkit.getOnlinePlayers().forEach(p -> {
                 if (p.getName().equals(args[0])) {
-                    BlockQuota.getInstance().getSqLiteStorage().resetQuotaAsync(p.getUniqueId());
-                    BlockQuota.getInstance().getQuotasCache().remove(p.getUniqueId());
+                    BlockQuota.getInstance().getStorageBreak().resetQuotaAsync(p.getUniqueId());
+                    BlockQuota.getInstance().getQuotasBreakCache().remove(p.getUniqueId());
+                    BlockQuota.getInstance().getStoragePlace().resetQuotaAsync(p.getUniqueId());
                     sender.sendMessage(BlockQuota.getInstance().getLangConfig()
                             .getString("limit_reset_another")
                             .replace("%player%", p.getName())

@@ -2,6 +2,7 @@ package fr.jessee.blockQuota.feature;
 
 import fr.jessee.blockQuota.util.dto.QuotaDTO;
 import fr.jessee.blockQuota.util.iface.BlockQuotaRepository;
+import fr.jessee.blockQuota.util.iface.QuotaTable;
 import fr.jessee.blockQuota.util.iface.Storage;
 import org.bukkit.Material;
 
@@ -13,26 +14,28 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class SQLiteStorage implements BlockQuotaRepository {
     private final Storage storage;
+    private final QuotaTable quotaTable;
 
-    public SQLiteStorage(Storage storage) throws SQLException {
+    public SQLiteStorage(Storage storage, QuotaTable quotaTable) throws SQLException {
         this.storage = storage;
+        this.quotaTable = quotaTable;
         // Création de la table si elle n'existe pas
         try (Statement stmt = storage.getConnection().createStatement()) {
-            stmt.executeUpdate("""
-                CREATE TABLE IF NOT EXISTS storage (
+            stmt.executeUpdate(String.format("""
+                CREATE TABLE IF NOT EXISTS %s (
                     uuid TEXT NOT NULL,
                     bloc TEXT NOT NULL,
                     count INTEGER NOT NULL,
                     PRIMARY KEY (uuid, bloc)
                 );
-            """);
+            """, quotaTable.getTableName()));
         }
     }
 
     private List<QuotaDTO> getQuotas(UUID playerId) {
         List<QuotaDTO> quotas = new ArrayList<>();
-        try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "SELECT * FROM storage WHERE uuid=?")) {
+        try (PreparedStatement ps = storage.getConnection().prepareStatement(String.format(
+                        "SELECT * FROM %s WHERE uuid=?", quotaTable.getTableName()))) {
             ps.setString(1, playerId.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -53,8 +56,9 @@ public class SQLiteStorage implements BlockQuotaRepository {
 
 
     private int getQuotaCount(UUID playerId, String blockType) {
-        try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "SELECT count FROM storage WHERE uuid=? AND bloc=?")) {
+        try (PreparedStatement ps = storage.getConnection().prepareStatement(String.format(
+                        "SELECT count FROM %s WHERE uuid=? AND bloc=?", quotaTable.getTableName()
+                ))) {
             ps.setString(1, playerId.toString());
             ps.setString(2, blockType);
             ResultSet rs = ps.executeQuery();
@@ -70,8 +74,9 @@ public class SQLiteStorage implements BlockQuotaRepository {
 
     private void addQuota(UUID playerId, String blockType, int amount) {
         try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "INSERT INTO storage (uuid, bloc, count) VALUES (?, ?, ?)" +
-                        "ON CONFLICT(uuid, bloc) DO UPDATE SET count=excluded.count")) {
+                String.format("INSERT INTO %s (uuid, bloc, count) VALUES (?, ?, ?)" +
+                        "ON CONFLICT(uuid, bloc) DO UPDATE SET count=excluded.count", quotaTable.getTableName())
+                )) {
             ps.setString(1, playerId.toString());
             ps.setString(2, blockType);
             ps.setInt(3, amount);
@@ -83,8 +88,9 @@ public class SQLiteStorage implements BlockQuotaRepository {
 
 
     private void resetQuota(UUID playerId) {
-        try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "DELETE FROM storage WHERE uuid=?")) {
+        try (PreparedStatement ps = storage.getConnection().prepareStatement(String.format(
+                        "DELETE FROM %s WHERE uuid=?", quotaTable.getTableName())
+                )) {
             ps.setString(1, playerId.toString());
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -94,8 +100,9 @@ public class SQLiteStorage implements BlockQuotaRepository {
 
 
     private void resetAllQuotas() {
-        try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "DELETE FROM storage")) {
+        try (PreparedStatement ps = storage.getConnection().prepareStatement(String.format(
+                        "DELETE FROM %s", quotaTable.getTableName())
+                )) {
             ps.executeUpdate();
         } catch (SQLException e) {
             getLogger().severe(e.getMessage());
@@ -105,8 +112,9 @@ public class SQLiteStorage implements BlockQuotaRepository {
 
     private Map<String, Integer> getAllQuotas(UUID playerId) {
         Map<String, Integer> quotas = new HashMap<>();
-        try (PreparedStatement ps = storage.getConnection().prepareStatement(
-                "SELECT bloc, count FROM storage WHERE uuid=?")) {
+        try (PreparedStatement ps = storage.getConnection().prepareStatement(String.format(
+                        "SELECT bloc, count FROM %s WHERE uuid=?")
+                )) {
             ps.setString(1, playerId.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -170,5 +178,9 @@ public class SQLiteStorage implements BlockQuotaRepository {
     @Override
     public CompletableFuture<Map<String, Integer>> getAllQuotasAsync(UUID playerId) {
         return CompletableFuture.supplyAsync(() -> getAllQuotas(playerId));
+    }
+
+    public Storage getStorage() {
+        return storage;
     }
 }
